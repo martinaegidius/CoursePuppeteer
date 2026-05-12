@@ -1,0 +1,171 @@
+name: Integrate solutions and push to public 
+
+on:
+  push:
+    branches:
+      - main  # Or whichever branch you want to trigger the sync
+  schedule: 
+      - cron: "00 16 * * 2"  #tuesdays 16:00 UTC: 17:00 DANISH TIME (winter) and 18:00 danish time (summer). Set schedules to be at 1530. Note: can vary with approximately an hour delay due to queues. 
+  workflow_dispatch: #adds a trigger to dispatch manually in the Actions tab of the UI 
+
+jobs:
+  prepare-message:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    outputs:
+      commit_message: ${{ steps.msg.outputs.commit_message }}
+    steps:
+      - name: Determine commit message
+        id: msg
+        run: |
+          now=$(date '+%Y-%m-%d %H:%M')
+          if [ "${{ github.event_name }}" = "push" ]; then
+              echo "commit_message=Update from main push at ${now}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+              echo "commit_message=Cron sync at ${now}" >> $GITHUB_OUTPUT
+          else
+              echo "commit_message=Manual or general sync at ${now}" >> $GITHUB_OUTPUT
+          fi
+  
+  push-to-another-repo:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: prepare-message
+    steps:
+      - name: Checkout Source Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH
+        run: |
+          echo "Setting up SSH for push to destination repository"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ACTIONS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Configure agent
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build solutions
+        run: |
+          echo "Running solution integrator -> injecting ipynb solutions into md files"
+          python3 scripts/integrate_solutions_in_md.py
+          
+      - name: Create downloadable zip files 
+        run: | 
+          echo "Creating zip material files (data and solution files)"
+          ./scripts/zip_wrapper.sh
+
+      - name: Compile updated docs/ and exercises/ packages
+        run: |
+          ./scripts/compile_packages.sh
+
+      - name: Parse mkdocs.yml 
+        run: | 
+          echo "Parsing mkdocs.yml for public docs/"
+          python3 scripts/parse_mkdocs_yml.py tmp/mkdocs.yml 
+        #the above code fixes a mkdocs version suitable for the public deploy. The cleanup script returns the mkdocs version suitable for local mkdocs serve testing. 
+
+
+      - name: Push to destination main branch 
+        run: |
+          echo "Pushing compiled package to public main/"
+          # now=$(date "+%Y-%m-%d %H:%M")
+          mkdir -p ../dest_main 
+          cp -r exercises/ raw/README.md ../dest_main/
+          (
+            cd ../dest_main
+            git init -b main 
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            COMMIT_MSG="Exercise update: ${{ needs.prepare-message.outputs.commit_message }}"
+            git commit -m "${COMMIT_MSG}"
+            git remote add destination git@github.com:martinaegidius/CoursePuppet.git
+            git push destination HEAD:main --force
+          )
+          
+      - name: Push to destination docs branch 
+        run: | 
+          # 1. Setup staging area for docs
+          # now=$(date '+%Y-%m-%d %H:%M')
+          mkdir -p ../dest_docs
+          mkdir -p ../dest_docs/.github
+          mkdir -p ../dest_docs/scripts 
+          cp -r docs/ mkdocs.yml ../dest_docs/
+          cp scripts/make_md_updated_tag.sh ../dest_docs/scripts/
+          cp scripts/append_md_updates.py ../dest_docs/scripts/
+          cp -r .github/public_workflows ../dest_docs/.github/
+          cp -r raw/downloads ../dest_docs/docs/
+
+          # 2. Initialize fresh repo
+          (
+            cd ../dest_docs
+            git init -b docs 
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            #install the workflow for deploying docs on public branch and skip ci 
+            mv .github/public_workflows .github/workflows
+            git add .github/workflows/deploy_mkdocs_page.yml
+            COMMIT_MSG="Docs update: workflow installation. ${{ needs.prepare-message.outputs.commit_message }} [skip ci]"
+            #git commit -m "Docs update scheduled ${now}: workflow installation [skip ci]"
+            git commit -m "${COMMIT_MSG}"
+            git remote add destination git@github.com:martinaegidius/CoursePuppet.git
+            git push destination HEAD:docs --force 
+            
+            # 3. Add the rest and push to docs public branch
+            git add .
+            
+            git commit -m "Docs update ${{ needs.prepare-message.outputs.commit_message }}"           
+            git push destination HEAD:docs --force
+          )
+
+      - name: Clean up tmp folder
+        run: | 
+          echo "Cleaning up tmp"
+          ./scripts/clean_up.sh
+          echo "Finished complete workflow."
+
+      - name: Push to self (only for debugging sol_md, docs and exercises)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. Essential: Set identity so Git can commit
+          # git config user.name "github-actions[bot]"
+          # git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 2. Fetch and switch to the existing debug branch
+          git checkout -b temp_build_branch 
+          
+          # 2.1 Make a mkdocs.yml for quickly checking how the fully released webpage would look: 
+          sed 's/^docs_dir: raw/docs_dir: sol_md/' mkdocs.yml > mkdocs_sol.yml
+
+          # 3. Add and commit (only if changes exist)
+          git add .
+          #now=$(date "+%Y-%m-%d %H:%M")
+          
+          if ! git diff-index --quiet HEAD; then 
+            git commit -m "Integrated solution state into private debug branch. ${{ needs.prepare-message.outputs.commit_message }}"
+            # 4. Push using the token onto debug branch 
+            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git temp_build_branch:debug --force
+          else
+            echo "No changes detected, nothing to push."
+          fi 
+
+            
+      # - name: Push to self (only for debugging sol_md, docs and exercises)
+      #   run: |
+      #     now=$(date "+%Y-%m-%d %H:%M")
+      #     git checkout debug 
+      #     git add . 
+      #     git commit -m "Integrated solution state ${now} into private debug branch"
+      #     git push 
+
+

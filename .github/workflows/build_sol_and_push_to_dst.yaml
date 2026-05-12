@@ -79,6 +79,8 @@ jobs:
           # now=$(date "+%Y-%m-%d %H:%M")
           mkdir -p ../dest_main 
           cp -r exercises/ raw/README.md ../dest_main/
+          mkdir -p ../dest_main/.github/workflows
+          cp .github/public_workflows/deploy_mkdocs_page.yml ../dest_main/.github/workflows/
           (
             cd ../dest_main
             git init -b main 

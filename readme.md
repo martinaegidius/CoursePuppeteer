@@ -1,13 +1,18 @@
 Welcome to the CoursePuppeteer repository!
-It is a course-management framework for quickly hosting course content on GitHub Pages. 
+CoursePuppeteer is a course-management framework for quickly hosting course content via GitHub Pages. 
 Specifically, we contribute with the following features: 
 - A web-page front-end, which allows students to get a quicker overview of exercises quickly
-- Automatic integration of solutions depending on a release-schedule 
+- Automatic integration of code and math solutions depending on a release-schedule 
 - GitHub actions infrastructure to push exercises with solutions automatically to the public repository accessable by students. 
 
-All changes to course material (exercises, solutions, etc.) are to be made in this repository. They are automatically pushed to the public repository based on time-schedules. 
+This repository serves as a showcase. It is a working fork of a repository currently live at DTU, but filled with template content. 
 
+Framework authors: 
+Ludvík Petersen & Martin Ægidius, for the Technical University of Denmark. 
 
+# Design philosophy
+All changes to course material (exercises, solutions, etc.) are to be made in this repository (the puppeteer). They are automatically pushed to the public puppet repository based on time-schedules and on certain events. The puppet repository simply serves as a snapshot of the current schedule, and is changed completely at every push. 
+ 
 
 # ⚡ Quick Reference: I just want to fix a typo
 1. Pull the latest code: git pull origin main

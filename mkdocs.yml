@@ -10,10 +10,10 @@ exclude_docs: |
 # mkdocs.yml
 
 # The name of your site (appears in the header and browser tab)
-site_name: 02502/02503 DTU Image Analysis Exercises
+site_name: CoursePuppeteer
 
 # Optional: a short description for search engines
-site_description: 02502/02503 DTU Image Analysis Course 
+site_description: An open-source framework for simple, automated content delivery for university courses.  
 
 theme:
   name: material

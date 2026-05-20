@@ -1,38 +1,28 @@
 [![CC BY 4.0][cc-by-shield]][cc-by]
 
-# DTU Course on  Image Analysis
+Welcome to the CoursePuppet repository!
+CoursePuppeteer is a course-management framework for quickly hosting course content via GitHub Pages. 
+Specifically, we contribute with the following features:
+- Two GitHub repositories with automatic workflows which reduce manual overhead of sending out solutions at a specific time. 
+- A web-page front-end, which allows students to get a quicker overview of exercises quickly
+- Automatic integration of code and math solutions depending on a release-schedule 
+- GitHub actions infrastructure to push exercises with solutions automatically to the public repository accessable by students. 
 
-This repository contains exercises and data for the DTU course on image analysis, which is an introductory course on typical methods used in image analysis. The course cover a variety of methods but does not go into deep learning.
+This specific repository serves as a showcase of the current state of the web-page, which may be accessed [here](https://martinaegidius.github.io/CoursePuppet/).
 
-The course exists in different version (per 2026)
-- [02503 Image Analysis](https://courses.compute.dtu.dk/02503/) : A bachelor level of the course
-- [02515 Image Analysis](https://courses.compute.dtu.dk/02515/) : A master level of the course
-
-Until 2025 there was a combined bachelor and master level course with the DTU Course number 02502. For legal reasons, DTU is no longer allowed to offer combined bachelor and master level courses.
+It is a working fork of a repository currently live at DTU, but filled with template solutions in order not to spoil students. 
 
 
-## Exercises
+# Authors: 
+Ludvík Petersen & Martin Ægidius, for the Technical University of Denmark. 
 
-- [1 - Introduction to image analysis in Python](ex1-IntroductionToImageAnalysis)
-- [1b - An introduction to principal component analysis (PCA)](ex1b-PCA)
-- [2 - Cameras and Lenses](ex2-CamerasAndLenses)
-- [2b - Change Detection in Videos](ex2b-ChangeDetectionInVideos)
-- [3 - Pixelwise operations](ex3-PixelwiseOperations)
-- [4 - Image Filtering](ex4-ImageFiltering)
-- [4b - Image Morphology](ex4b-ImageMorphology)
-- [5 - BLOB Analysis / Connected component analysis and object classification](ex5-BLOBAnalysis)
-- [6 - Pixel classification and object segmentation](ex6-PixelClassificationAndObjectSegmentation)
-- [6b - Advanced Pixel Classification](ex6b-AdvancedPixelClassification)
-- [7 - Geometric transformations and landmark based registration](ex7-GeometricTransformationsAndRegistration)
-- [8 - Cats, cats, and EigenCats](ex8-CatsCatsCats)
-- [9 - Advanced Image Registration](ex9-AdvancedRegistration)
-- [10 - Object Detection using Viola Jones](ex10-Viola-Jones)
-- [11 - Cameras, lenses and subpixel averaging (**not in current curriculum**)](ex2-CamerasAndLensesSubpixel)
-
-### Author
-
-Rasmus R. Paulsen. DTU Compute (https://people.compute.dtu.dk/rapa/)
-
+# Design philosophy
+This puppet repository is automatically handled by the [puppeteer repository](https://github.com/martinaegidius/CoursePuppeteer). 
+Updates are automatically pushed from the puppeteer repository, which should be private in a real-life setting in order to hide solutions from students. The pushes are received based on time-schedules and on certain events. This repository simply serves as a snapshot of the current schedule, and is changed dynamically at every push. 
+ 
+# Branches
+The web-page is served from the gh-pages branch, based on the docs branch. The main branch is a snapshot of the old course format, but with dynamically added solutions as according to the time-schedule.   
+ 
 ### License
 
 This work is licensed under a

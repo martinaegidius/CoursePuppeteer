@@ -1,17 +1,22 @@
+[![CC BY 4.0][cc-by-shield]][cc-by]
+
 Welcome to the CoursePuppeteer repository!
 CoursePuppeteer is a course-management framework for quickly hosting course content via GitHub Pages. 
 Specifically, we contribute with the following features: 
+- Two GitHub repositories with automatic workflows which reduce manual overhead of sending out solutions at a specific time. 
 - A web-page front-end, which allows students to get a quicker overview of exercises quickly
 - Automatic integration of code and math solutions depending on a release-schedule 
 - GitHub actions infrastructure to push exercises with solutions automatically to the public repository accessable by students. 
 
-This repository serves as a showcase. It is a working fork of a repository currently live at DTU, but filled with template content. 
+This repository serves as a showcase. It is a working fork of a repository currently live at DTU, but filled with template content. This repository serves as the puppeteer, meaning it controls all the logic of which content is served and when on the live [course-page](https://martinaegidius.github.io/CoursePuppet/).
 
-Framework authors: 
+
+
+# Framework authors: 
 Ludvík Petersen & Martin Ægidius, for the Technical University of Denmark. 
 
 # Design philosophy
-All changes to course material (exercises, solutions, etc.) are to be made in this repository (the puppeteer). They are automatically pushed to the public puppet repository based on time-schedules and on certain events. The puppet repository simply serves as a snapshot of the current schedule, and is changed completely at every push. 
+All changes to course material (exercises, solutions, etc.) are to be made in this repository (the puppeteer), which in a real-life setting would be private. Course content is automatically pushed to the public puppet repository based on time-schedules and on certain events. The [puppet repository](https://github.com/martinaegidius/CoursePuppet) simply serves as a snapshot of the current schedule, and is changed completely at every push. 
  
 
 # ⚡ Quick Reference: I just want to fix a typo
@@ -301,3 +306,14 @@ You can easily clone the setup for any other course. Follow the following steps:
 14. Enjoy a semi-automatically hosted course webpage  
 
 
+
+### License
+
+This work is licensed under a
+[Creative Commons Attribution 4.0 International License][cc-by].
+
+[![CC BY 4.0][cc-by-image]][cc-by]
+
+[cc-by]: http://creativecommons.org/licenses/by/4.0/
+[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
+[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
